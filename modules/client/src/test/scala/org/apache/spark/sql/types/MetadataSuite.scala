@@ -91,8 +91,8 @@ class MetadataSuite extends munit.FunSuite {
     assertEquals(metadata.json, """{"":""}""")
 
   test("json preserves ordinary Unicode text"):
-    val metadata = new MetadataBuilder().putString("é", "世界 🙂 /").build()
-    assertEquals(metadata.json, """{"é":"世界 🙂 /"}""")
+    val metadata = new MetadataBuilder().putString("\u00a7", "\u00b1 \u221e /").build()
+    assertEquals(metadata.json, """{"§":"± ∞ /"}""")
 
   test("json escapes strings in nested metadata"):
     val nested = new MetadataBuilder().putString("a\"b", "line\nbreak").build()
