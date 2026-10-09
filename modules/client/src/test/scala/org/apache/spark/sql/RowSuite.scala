@@ -86,6 +86,12 @@ class RowSuite extends munit.FunSuite {
     intercept[UnsupportedOperationException](Row(1).fieldIndex("a"))
   }
 
+  test("getValuesMap keeps field names as keys and typed values"):
+    val schema = StructType(Array(StructField("a", IntegerType), StructField("b", IntegerType)))
+    val row = new GenericRowWithSchema(Array(1, 2), schema)
+    val values: Map[String, Int] = row.getValuesMap[Int](Seq("b", "a"))
+    assertEquals(values, Map("a" -> 1, "b" -> 2))
+
   test("unapplySeq enables pattern matching") {
     val matched = Row(1, "a") match {
       case Row(x, y) => s"$x-$y"
