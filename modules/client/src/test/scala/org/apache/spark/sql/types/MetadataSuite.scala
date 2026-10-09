@@ -70,6 +70,14 @@ class MetadataSuite extends munit.FunSuite {
     assertEquals(m.json, """{"flag":false,"name":"a\"b\\c"}""")
   }
 
+  test("json escapes quotes and backslashes in keys"):
+    val metadata = new MetadataBuilder().putString("a\"b\\c", "value").build()
+    assertEquals(metadata.json, """{"a\"b\\c":"value"}""")
+
+  test("json escapes control characters in string values"):
+    val metadata = new MetadataBuilder().putString("value", "\b\f\n\r\t").build()
+    assertEquals(metadata.json, """{"value":"\b\f\n\r\t"}""")
+
   test("equals and hashCode are by content") {
     val a = new MetadataBuilder().putString("k", "v").build()
     val b = new MetadataBuilder().putString("k", "v").build()
