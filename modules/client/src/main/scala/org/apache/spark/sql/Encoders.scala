@@ -124,11 +124,25 @@ object Encoder {
       isNullable = true
     )
   given Encoder[java.sql.Date] =
-    atomic(DateType, v => v.asInstanceOf[java.sql.Date], isNullable = true)
+    atomic(
+      DateType,
+      value =>
+        value match
+          case date: java.time.LocalDate => java.sql.Date.valueOf(date)
+          case other => other.asInstanceOf[java.sql.Date],
+      isNullable = true
+    )
   given Encoder[java.time.LocalDate] =
     atomic(DateType, v => v.asInstanceOf[java.time.LocalDate], isNullable = true)
   given Encoder[java.sql.Timestamp] =
-    atomic(TimestampType, v => v.asInstanceOf[java.sql.Timestamp], isNullable = true)
+    atomic(
+      TimestampType,
+      value =>
+        value match
+          case instant: java.time.Instant => java.sql.Timestamp.from(instant)
+          case other => other.asInstanceOf[java.sql.Timestamp],
+      isNullable = true
+    )
   given Encoder[java.time.Instant] =
     atomic(TimestampType, v => v.asInstanceOf[java.time.Instant], isNullable = true)
   given Encoder[java.time.LocalDateTime] =

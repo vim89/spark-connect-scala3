@@ -22,7 +22,7 @@ import com.google.protobuf.ByteString
 import org.apache.arrow.memory.RootAllocator
 
 import org.apache.spark.connect.proto
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Encoder, Row}
 import org.apache.spark.sql.connect.common.DataTypeProtoConverter
 import org.apache.spark.sql.types.*
 
@@ -144,6 +144,18 @@ class SparkResultRoundTripSuite extends munit.FunSuite {
     assertEquals(r.getInstant(1), Instant.parse("2024-02-29T12:34:56.000789Z"))
     assertEquals(r.getAs[LocalDateTime](2), ldt)
   }
+
+  test("round-trips nullable java.sql.Date values through Arrow"):
+    val encoder = Encoder[java.sql.Date]
+    val input = Seq(java.sql.Date.valueOf("1969-12-31"), null)
+    val result = roundTrip(encoder.schema, input.map(value => encoder.toRow(value).toSeq))
+    assertEquals(result.toArray.map(encoder.fromRow).toSeq, input)
+
+  test("round-trips nullable java.sql.Timestamp values through Arrow with microsecond precision"):
+    val encoder = Encoder[java.sql.Timestamp]
+    val input = Seq(java.sql.Timestamp.from(Instant.parse("1969-12-31T23:59:59.999999Z")), null)
+    val result = roundTrip(encoder.schema, input.map(value => encoder.toRow(value).toSeq))
+    assertEquals(result.toArray.map(encoder.fromRow).toSeq, input)
 
   test("round-trips decimal with declared scale") {
     val schema = StructType(Array(StructField("amount", DecimalType(10, 2))))
