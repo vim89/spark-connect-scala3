@@ -157,6 +157,16 @@ class SparkResultRoundTripSuite extends munit.FunSuite {
     val result = roundTrip(encoder.schema, input.map(value => encoder.toRow(value).toSeq))
     assertEquals(result.toArray.map(encoder.fromRow).toSeq, input)
 
+  test("java.sql.Date encoder still accepts an existing SQL date"):
+    val encoder = Encoder[java.sql.Date]
+    val input = java.sql.Date.valueOf("1969-12-31")
+    assertEquals(encoder.fromRow(encoder.toRow(input)), input)
+
+  test("java.sql.Timestamp encoder still accepts an existing SQL timestamp"):
+    val encoder = Encoder[java.sql.Timestamp]
+    val input = java.sql.Timestamp.from(Instant.parse("1969-12-31T23:59:59.999999Z"))
+    assertEquals(encoder.fromRow(encoder.toRow(input)), input)
+
   test("round-trips decimal with declared scale") {
     val schema = StructType(Array(StructField("amount", DecimalType(10, 2))))
     val value = new java.math.BigDecimal("123.45")
